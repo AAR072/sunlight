@@ -25,6 +25,18 @@ Free, open source and yours forever.
 
 ---
 
+## This fork
+
+Based on Sunlight 0.2.4, with three changes:
+
+- Three fingers replace four for pan, See All (tap or swipe up), and Show Desktop (thumb and two fingers).
+- Panning follows both axes throughout the gesture, including turns after a horizontal or vertical start.
+- A single click on a window in the zoomed canvas centres and enters it, matching a double-click.
+
+Build this version with `make app SIGN=-`; the app is written to `build/Sunlight.app`. This command
+does not install or launch it. Custom builds update manually, so the upstream updater cannot replace
+these changes. The download links below are for the original Sunlight releases.
+
 ## What is this?
 
 Your Mac stacks windows on top of each other like a pile of pizza boxes. Sunlight lays them all out
@@ -41,12 +53,11 @@ Desktop all land on it. So it's still your Mac. It just has room now.
 
 ## Features
 
-- 🗺️ **One infinite canvas.** Pan with two fingers, pinch to zoom, four-finger drag to pan from anywhere,
+- 🗺️ **One infinite canvas.** Pan with two fingers, pinch to zoom, three-finger drag to pan from anywhere,
   even over a window.
 - 🪟 **Real windows, not screenshots.** With live windows on, the canvas shows the actual windows, scaled
   in place by a small add-on in the Dock. At 1:1 you can click, type and scroll in them right there.
-- 🎯 **Seamless handoff.** Click a window to step into it where it is; double-click to bring it to the
-  middle. The Mission Control key (F3) or a four-finger tap takes you back out, and again takes you back in.
+- 🎯 **Seamless handoff.** Click a window to bring it to the middle and enter it, just like a double-click. The Mission Control key (F3) or a three-finger tap takes you back out, and again takes you back in.
 - 🧲 **Neat without trying.** Windows snap to guides and a grid as you drag, resize from their edges, and
   can shove each other out of the way if you want them to (Settings › Windows).
 - ⌨️ **Move & Resize keys.** ⌃⌥ + arrows for halves, plus quarters, thirds, two-thirds, full screen and
@@ -54,7 +65,7 @@ Desktop all land on it. So it's still your Mac. It just has room now.
 - 💾 **Layouts.** ⌘S saves where everything is, ⌘1 – ⌘9 brings it back, reopening apps and documents that
   were closed.
 - 🖥️ **Your desktop comes along.** Finder's desktop files are the canvas floor (open, drag, rename, drag into
-  a window), widgets sit beside your windows, and Show Desktop (F11 or the four-finger spread) flies there.
+  a window), widgets sit beside your windows, and Show Desktop (F11 or the three-finger spread) flies there.
 - 🖼️ **Picture in Picture, for any window.** Right-click a window › Picture in Picture (⌃⌥P) and it flies
   into a corner as a small live tile, like a video does, while you work in anything else: a call, a video,
   a timer. Drag it between corners, tuck it off the side; a click brings it back full size.
@@ -69,17 +80,17 @@ Desktop all land on it. So it's still your Mac. It just has room now.
 ## Getting around
 
 <p align="center">
-  <img src="docs/images/gestures.png" width="820" alt="Settings › How to use acting out two gestures: a click bringing a window forward, and the four-finger spread for Show Desktop">
+  <img src="docs/images/gestures.png" width="820" alt="Settings › How to use acting out two gestures: a click bringing a window forward, and Show Desktop in the original release">
 </p>
 
 | To | Trackpad | Keys |
 |---|---|---|
 | Zoom | pinch | ⌥ or ⌘ + scroll |
-| Pan | two-finger scroll, or four-finger drag from anywhere | |
-| Go into a window | click it (double-click to centre it), or pinch in over it | ⏎ over it |
+| Pan | two-finger scroll, or three-finger drag from anywhere | |
+| Go into a window | click it to centre and enter, or pinch in to enter where it sits | ⏎ over it |
 | Use a window at 1:1 | just click, type and scroll, as on the desktop | |
-| See everything, and back in | four-finger tap | Mission Control key (F3) |
-| Show Desktop | four-finger spread (thumb and three fingers) | F11 |
+| See everything, and back in | three-finger tap | Mission Control key (F3) |
+| Show Desktop | three-finger spread (thumb and two fingers) | F11 |
 | Move & Resize a window | | ⌃⌥ ← → ↑ ↓ halves, U I J K quarters, D F G thirds, ⏎ full, C centre |
 | Picture in Picture | right-click a window › Picture in Picture | ⌃⌥P |
 | Save / restore a layout | | ⌘S / ⌘1 – ⌘9 |

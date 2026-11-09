@@ -9,10 +9,10 @@ final class GestureGuideTests: XCTestCase {
         let withSwipe = GestureGuide.Group.allCases.flatMap { $0.gestures(seeAll: .swipeUp) }
         XCTAssertEqual(Set(withTap).union(withSwipe), Set(Gesture.allCases))
         XCTAssertEqual(withTap.count, Gesture.allCases.count - 1)
-        XCTAssertTrue(withTap.contains(.fourFingerTap))
+        XCTAssertTrue(withTap.contains(.threeFingerTap))
         XCTAssertFalse(withTap.contains(.swipeUp))
         XCTAssertTrue(withSwipe.contains(.swipeUp))
-        XCTAssertFalse(withSwipe.contains(.fourFingerTap))
+        XCTAssertFalse(withSwipe.contains(.threeFingerTap))
         XCTAssertTrue(GestureGuide.Group.allCases.allSatisfy { !$0.gestures(seeAll: .tap).isEmpty })
     }
 
@@ -51,13 +51,13 @@ final class GestureGuideTests: XCTestCase {
         }
     }
 
-    func testFourFingerTapStaysPutAndOpensOutToEverything() {
-        let before = GestureGuide.frame(for: .fourFingerTap, at: 0.5)
-        let down = GestureGuide.frame(for: .fourFingerTap, at: 1.0)
+    func testThreeFingerTapStaysPutAndOpensOutToEverything() {
+        let before = GestureGuide.frame(for: .threeFingerTap, at: 0.5)
+        let down = GestureGuide.frame(for: .threeFingerTap, at: 1.0)
         XCTAssertEqual(down.fingers[0], before.fingers[0])
         XCTAssertGreaterThan(down.touch, 0.9)
         XCTAssertEqual(before.camera, .entered)
-        XCTAssertEqual(GestureGuide.frame(for: .fourFingerTap, at: 2.2).camera, .overview)
+        XCTAssertEqual(GestureGuide.frame(for: .threeFingerTap, at: 2.2).camera, .overview)
     }
 
     func testSwipeUpGoesUpTheTrackpadAndOutToEverything() {
@@ -68,9 +68,9 @@ final class GestureGuideTests: XCTestCase {
         XCTAssertEqual(GestureGuide.frame(for: .swipeUp, at: 2.0).camera, .overview)
     }
 
-    func testFourFingerDragIsNotStraightUp() {
-        let a = GestureGuide.frame(for: .fourFingerDrag, at: 1.0).fingers[0]
-        let b = GestureGuide.frame(for: .fourFingerDrag, at: 2.6).fingers[0]
+    func testThreeFingerDragIsNotStraightUp() {
+        let a = GestureGuide.frame(for: .threeFingerDrag, at: 1.0).fingers[0]
+        let b = GestureGuide.frame(for: .threeFingerDrag, at: 2.6).fingers[0]
         XCTAssertGreaterThan(b.y, a.y, "down the trackpad, never up")
     }
 

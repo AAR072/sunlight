@@ -3,7 +3,7 @@ import AppKit
 /// A map of the canvas in the bottom-right corner: every window and widget as a small shape, each
 /// window with its app's icon in the middle, hidden and minimized windows as dashed outlines where
 /// they'll come back, the desktop's files as a faint patch under them, the screen as an outline. Click to look there, drag to pan. The zoom readout, Fit (what the
-/// four-finger tap does) and 1:1 run along the bottom. Canvas › Minimap hides it.
+/// three-finger tap does) and 1:1 run along the bottom. Canvas › Minimap hides it.
 @MainActor
 final class MinimapPanel: NSView {
     static let size = NSSize(width: 200, height: 125)

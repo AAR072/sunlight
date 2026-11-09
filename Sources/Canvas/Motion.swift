@@ -5,7 +5,7 @@ import QuartzCore
 /// input gathered between display frames, and the coasts that carry a pan or a pinch on after the
 /// fingers lift.
 ///
-/// Why gather: scroll events, pinch events and the trackpad's four-finger frames each arrive on their
+/// Why gather: scroll events, pinch events and the trackpad's three-finger frames each arrive on their
 /// own clock (up to 120 Hz, ~125 Hz for the trackpad), none of them the display's. Moving the camera
 /// the moment each one lands puts several moves in one frame and none in the next, which reads as
 /// judder even when no frame is dropped. The view folds them into a `PendingInput` and applies it once

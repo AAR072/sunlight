@@ -21,14 +21,14 @@ enum GestureGuide {
 
         /// The gestures in this tab, with See All shown the way Settings › How to use has it.
         func gestures(seeAll: Settings.SeeAllGesture) -> [Gesture] {
-            Gesture.allCases.filter { $0.group == self && $0 != (seeAll == .tap ? .swipeUp : .fourFingerTap) }
+            Gesture.allCases.filter { $0.group == self && $0 != (seeAll == .tap ? .swipeUp : .threeFingerTap) }
         }
 
         var footer: String? {
             switch self {
             case .pointAndClick: return "At 1:1, clicks go to the window."
             case .zoomAndPan: return "⌥ or ⌘ with a scroll zooms too, for a mouse."
-            case .more: return "Sunlight takes four-finger swipes. Five fingers still go to the Mac."
+            case .more: return "Sunlight uses three fingers to pan, see everything and show the desktop."
             }
         }
     }
@@ -36,7 +36,7 @@ enum GestureGuide {
     enum Gesture: String, CaseIterable, Identifiable {
         case click, doubleClick, drag, secondaryClick
         case pinch, pinchIn, scroll
-        case fourFingerDrag, fourFingerTap, swipeUp, spread
+        case threeFingerDrag, threeFingerTap, swipeUp, spread
 
         var id: Self { self }
 
@@ -44,7 +44,7 @@ enum GestureGuide {
             switch self {
             case .click, .doubleClick, .drag, .secondaryClick: return .pointAndClick
             case .pinch, .pinchIn, .scroll: return .zoomAndPan
-            case .fourFingerDrag, .fourFingerTap, .swipeUp, .spread: return .more
+            case .threeFingerDrag, .threeFingerTap, .swipeUp, .spread: return .more
             }
         }
 
@@ -58,8 +58,8 @@ enum GestureGuide {
             case .pinch: return "Zoom in or out"
             case .pinchIn: return "Enter where it is"
             case .scroll: return "Pan the canvas"
-            case .fourFingerDrag: return "Pan from anywhere"
-            case .fourFingerTap, .swipeUp: return "See everything"
+            case .threeFingerDrag: return "Pan from anywhere"
+            case .threeFingerTap, .swipeUp: return "See everything"
             case .spread: return "Show Desktop"
             }
         }
@@ -74,25 +74,25 @@ enum GestureGuide {
             case .pinch: return "Pinch with two fingers"
             case .pinchIn: return "Spread two fingers over a window, all the way"
             case .scroll: return "Slide two fingers"
-            case .fourFingerDrag: return "Drag with four fingers"
-            case .fourFingerTap: return "Tap with four fingers"
-            case .swipeUp: return "Swipe up with four fingers"
-            case .spread: return "Spread your thumb and three fingers"
+            case .threeFingerDrag: return "Drag with three fingers"
+            case .threeFingerTap: return "Tap with three fingers"
+            case .swipeUp: return "Swipe up with three fingers"
+            case .spread: return "Spread your thumb and two fingers"
             }
         }
 
         /// The longer story, under the picture.
         var line: String {
             switch self {
-            case .click: return "The window comes to 1:1 where it sits."
+            case .click: return "The window comes to the middle at 1:1, just like a double-click."
             case .doubleClick: return "The window flies to the middle. ⏎ does the same."
             case .drag: return "Edges line up. ⌘-drag to place freely."
             case .secondaryClick: return "Window options, or canvas options."
             case .pinch: return "Zooms around your fingers."
             case .pinchIn: return "Zoom into a window to use it."
             case .scroll: return "Moves the canvas. At 1:1, scrolls the window."
-            case .fourFingerDrag: return "Pans from anywhere, even inside a window."
-            case .fourFingerTap: return "See every window. Tap again to go back."
+            case .threeFingerDrag: return "Pans freely in every direction, even inside a window."
+            case .threeFingerTap: return "See every window. Tap again to go back."
             case .swipeUp: return "See every window. Swipe again to go back."
             case .spread: return "Shows the desktop. So does F11."
             }
@@ -102,7 +102,7 @@ enum GestureGuide {
             switch self {
             case .click, .doubleClick, .drag: return 1
             case .secondaryClick, .pinch, .pinchIn, .scroll: return 2
-            case .fourFingerDrag, .fourFingerTap, .swipeUp, .spread: return 4
+            case .threeFingerDrag, .threeFingerTap, .swipeUp, .spread: return 3
             }
         }
 
@@ -111,9 +111,9 @@ enum GestureGuide {
             switch self {
             case .secondaryClick: return 3.0
             case .drag: return 3.4
-            case .click, .doubleClick, .pinch, .pinchIn, .fourFingerTap, .swipeUp, .spread: return 3.6
+            case .click, .doubleClick, .pinch, .pinchIn, .threeFingerTap, .swipeUp, .spread: return 3.6
             case .scroll: return 4.0
-            case .fourFingerDrag: return 4.2
+            case .threeFingerDrag: return 4.2
             }
         }
 
@@ -127,8 +127,8 @@ enum GestureGuide {
             case .pinch: return 1.6
             case .pinchIn: return 1.6
             case .scroll: return 1.0
-            case .fourFingerDrag: return 1.8
-            case .fourFingerTap: return 1.0
+            case .threeFingerDrag: return 1.8
+            case .threeFingerTap: return 1.0
             case .swipeUp: return 0.95
             case .spread: return 1.3
             }
@@ -179,8 +179,7 @@ enum GestureGuide {
 
     /// One moment of a loop.
     struct Frame: Equatable {
-        /// Fingertips on the trackpad, in its unit square, y down. With four, the first is the thumb
-        /// for Show Desktop.
+        /// Fingertips on the trackpad, in its unit square, y down. For Show Desktop, the first is the thumb.
         var fingers: [CGPoint] = []
         /// 0 lifted, 1 on the trackpad.
         var touch: CGFloat = 0
@@ -275,9 +274,9 @@ enum GestureGuide {
             f.fingers = [CGPoint(x: x - 0.06, y: 0.5), CGPoint(x: x + 0.06, y: 0.48)]
             f.touch = touch(t, on: 0.3, off: 1.7) + touch(t, on: 2.1, off: 3.5)
             f.camera = Camera(center: CGPoint(x: 0.5 + 0.25 * (out - back), y: 0.5), zoom: 1)
-        case .fourFingerDrag:
+        case .threeFingerDrag:
             let out = ramp(t, 0.5, 1.0), pan = ramp(t, 1.1, 2.5)
-            // On a slant, down and to the left: any way but straight up pans.
+            // On a slant, down and to the left, showing both axes moving together.
             f.fingers = hand(at: CGPoint(x: 0.62 - 0.24 * pan, y: 0.42 + 0.16 * pan))
             f.touch = touch(t, on: 0.4, off: 2.7)
             var camera = Camera.entered.mix(.overview, out)
@@ -286,7 +285,7 @@ enum GestureGuide {
             f.camera = camera
             f.raised = true
             f.opacity = loopFade
-        case .fourFingerTap:
+        case .threeFingerTap:
             f.fingers = hand(at: CGPoint(x: 0.5, y: 0.5))
             f.touch = touch(t, on: 0.9, off: 1.1)
             f.camera = Camera.entered.mix(.overview, ramp(t, 1.1, 1.9))
@@ -299,10 +298,10 @@ enum GestureGuide {
             f.raised = true
             f.opacity = loopFade
         case .spread:
-            let thumbAndThree = [CGPoint(x: 0.34, y: 0.76), CGPoint(x: 0.46, y: 0.34), CGPoint(x: 0.58, y: 0.28), CGPoint(x: 0.70, y: 0.34)]
-            let c = CGPoint(x: thumbAndThree.map(\.x).reduce(0, +) / 4, y: thumbAndThree.map(\.y).reduce(0, +) / 4)
+            let thumbAndTwo = [CGPoint(x: 0.34, y: 0.76), CGPoint(x: 0.50, y: 0.28), CGPoint(x: 0.66, y: 0.34)]
+            let c = CGPoint(x: thumbAndTwo.map(\.x).reduce(0, +) / 3, y: thumbAndTwo.map(\.y).reduce(0, +) / 3)
             let s = 0.5 + 0.5 * ramp(t, 0.6, 1.3)
-            f.fingers = thumbAndThree.map { CGPoint(x: c.x + ($0.x - c.x) * s, y: c.y + ($0.y - c.y) * s) }
+            f.fingers = thumbAndTwo.map { CGPoint(x: c.x + ($0.x - c.x) * s, y: c.y + ($0.y - c.y) * s) }
             f.touch = touch(t, on: 0.4, off: 1.5)
             f.desktop = ramp(t, 0.7, 1.5)
             f.opacity = loopFade
@@ -349,9 +348,9 @@ enum GestureGuide {
         return [CGPoint(x: c.x - dx, y: c.y + dy), CGPoint(x: c.x + dx, y: c.y - dy)]
     }
 
-    /// Four fingertips side by side in a gentle arc, as a hand rests.
+    /// Three fingertips side by side in a gentle arc, as a hand rests.
     private static func hand(at c: CGPoint) -> [CGPoint] {
-        let offsets: [(CGFloat, CGFloat)] = [(-0.20, 0.06), (-0.07, -0.03), (0.07, -0.04), (0.20, 0.03)]
+        let offsets: [(CGFloat, CGFloat)] = [(-0.16, 0.03), (0, -0.04), (0.16, 0.02)]
         return offsets.map { CGPoint(x: c.x + $0.0, y: c.y + $0.1) }
     }
 }
@@ -535,8 +534,7 @@ struct TrackpadPicture: View {
             let lift = 1 - frame.touch
             for (i, unit) in frame.fingers.enumerated() {
                 let c = CGPoint(x: pad.minX + unit.x * pad.width, y: pad.minY + unit.y * pad.height)
-                // Four side by side need a little more room each.
-                let base: CGFloat = thumb && i == 0 ? 14.5 : (frame.fingers.count == 4 ? 11 : 12)
+                let base: CGFloat = thumb && i == 0 ? 14.5 : 12
                 if let ripple = frame.ripple {
                     let r = base + 14 * ripple
                     ctx.stroke(Path(ellipseIn: CGRect(x: c.x - r, y: c.y - r, width: r * 2, height: r * 2)),
@@ -629,7 +627,7 @@ struct TrackpadPane: View {
                 .labelsHidden()
             } header: {
                 SectionHeader(title: "See everything",
-                              detail: "The four-finger gesture that shows every window.")
+                              detail: "The three-finger gesture that shows every window.")
             } footer: {
                 Text("With swipe up, a slow drag up still pans.")
                     .font(.callout)
@@ -641,7 +639,7 @@ struct TrackpadPane: View {
         .onChange(of: group) { gesture = group.gestures(seeAll: seeAll)[0] }
         .onChange(of: seeAll) {
             Settings.seeAllGesture = seeAll
-            if gesture == .fourFingerTap || gesture == .swipeUp { gesture = seeAll == .tap ? .fourFingerTap : .swipeUp }
+            if gesture == .threeFingerTap || gesture == .swipeUp { gesture = seeAll == .tap ? .threeFingerTap : .swipeUp }
         }
     }
 }

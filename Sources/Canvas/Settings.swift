@@ -260,14 +260,14 @@ enum Settings {
 
     // MARK: Trackpad
 
-    /// The four-finger gesture that shows everything (and, done again on the canvas, goes back into
-    /// the last window), as the Mission Control key does. A tap leaves every four-finger drag a pan; a
+    /// The three-finger gesture that shows everything (and, done again on the canvas, goes back into
+    /// the last window), as the Mission Control key does. A tap leaves every three-finger drag a pan; a
     /// swipe up, Mission Control's own gesture, takes the quick upward stroke from panning.
     enum SeeAllGesture: String, CaseIterable, Identifiable {
         case tap, swipeUp
         var id: Self { self }
-        var title: String { self == .tap ? "Four-finger tap" : "Four-finger swipe up" }
-        var how: String { self == .tap ? "Tap with four fingers" : "Swipe up with four fingers" }
+        var title: String { self == .tap ? "Three-finger tap" : "Three-finger swipe up" }
+        var how: String { self == .tap ? "Tap with three fingers" : "Swipe up with three fingers" }
     }
     static let seeAllGestureDidChange = Notification.Name("SunlightSeeAllGestureDidChange")
     static var seeAllGesture: SeeAllGesture {
@@ -280,7 +280,7 @@ enum Settings {
 
     // MARK: Inertia
 
-    /// A four-finger or scroll pan keeps going after the fingers lift, slowing as a scroll does (see
+    /// A three-finger or scroll pan keeps going after the fingers lift, slowing as a scroll does (see
     /// `Motion.PanCoast`). Off, the canvas stops dead when the fingers do, and the Mac's own scroll
     /// momentum is ignored too. On by default. Reduce Motion turns both inertias off either way.
     static var panInertia: Bool {

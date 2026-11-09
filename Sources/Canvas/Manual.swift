@@ -47,16 +47,16 @@ enum Manual {
 
     /// The canvas in a few lines, in the order you'd learn it.
     static let gettingAround: [Row] = [
-        Row(title: "See everything", how: "four-finger tap (or swipe up: Settings › How to use)"),
+        Row(title: "See everything", how: "three-finger tap (or swipe up: Settings › How to use)"),
         Row(title: "Zoom", how: "pinch · ⌥ or ⌘ scroll"),
         Row(title: "Pan", how: "two-finger scroll · drag the empty canvas"),
         Row(title: "Go into a window", how: "click · pinch in over it"),
-        Row(title: "Bring a window to the middle", how: "double-click · ⏎ over it"),
+        Row(title: "Bring a window to the middle", how: "click · double-click · ⏎ over it"),
         Row(title: "Use a window at 1:1", how: "click, as on the desktop"),
-        Row(title: "Canvas ↔ last window", how: "Mission Control key · four-finger tap"),
+        Row(title: "Canvas ↔ last window", how: "Mission Control key · three-finger tap"),
         Row(title: "Jump to another window", how: "hold the Mission Control key, point at it, let go"),
-        Row(title: "Show Desktop", how: "F11 · four-finger spread"),
-        Row(title: "Pan from anywhere, even inside a window", how: "four-finger drag, any direction"),
+        Row(title: "Show Desktop", how: "F11 · three-finger spread"),
+        Row(title: "Pan from anywhere, even inside a window", how: "three-finger drag, any direction"),
     ]
 
     /// Where the rest lives.

@@ -19,9 +19,9 @@ enum Handoff {
         /// Where the proxy already is (a pinch). At 1:1 nothing moves; zoomed out it grows to
         /// 1:1 down from its top edge, the point's x staying under the pointer.
         case inPlace(around: CGPoint)
-        /// A click on the proxy at `offset` inside it (world units, which are the real window's points):
-        /// it grows to 1:1 around the clicked spot, which stays under the pointer as far as the screen allows.
-        case clicked(at: CGPoint, offset: CGPoint)
+        /// A single click centres the window just like a double-click, keeping the second click
+        /// on the canvas until the transition finishes.
+        case clicked
     }
 
     /// Where the window goes and how the camera gets there. All in view coordinates (the display's
@@ -31,7 +31,7 @@ enum Handoff {
         let origin: CGPoint
         /// The 1:1 camera that shows the window at `origin`.
         let camera: Camera
-        /// For a window that keeps its place (in place, clicked, tiled): the 1:1 camera at which it
+        /// For a window that keeps its place (in place, tiled): the 1:1 camera at which it
         /// sits exactly where it is, before the menu bar had its say. In capture mode the camera ends
         /// there and the window eases to where it landed, so nothing else on the canvas moves.
         let inPlace: Camera?
@@ -61,9 +61,8 @@ enum Handoff {
             // now: zoomed out, the window grows down from its top edge; at 1:1 nothing moves.
             origin = CGPoint(x: rect.minX - camera.toWorld(point).x + point.x, y: camera.toScreen(rect.origin).y)
             keepsPlace = true
-        case .clicked(let point, let offset):
-            origin = CGPoint(x: point.x - offset.x, y: point.y - offset.y)
-            keepsPlace = true
+        case .clicked:
+            origin = centredOrigin(of: rect, in: visible)
             clicked = true
         }
         if let area = tiledArea {

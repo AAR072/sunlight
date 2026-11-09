@@ -491,9 +491,9 @@ struct TourTable: View {
     private var s: CGFloat { scale }
 
     static let rows: [(String, String)] = [
-        ("Canvas ↔ last window", "four-finger tap  ·  Mission Control key"),
+        ("Canvas ↔ last window", "three-finger tap  ·  Mission Control key"),
         ("Enter a window", "click  ·  ⏎"),
-        ("Zoom and pan", "pinch  ·  ⌥ or ⌘ scroll  ·  four-finger drag"),
+        ("Zoom and pan", "pinch  ·  ⌥ or ⌘ scroll  ·  three-finger drag"),
         ("Place windows", "⌃⌥ keys: one window, one screen, everything"),
         ("Learn the rest", "Settings › How to use  ·  ⌘?"),
         ("Save and restore layouts", "⌘S  ·  ⌘1 – ⌘9"),

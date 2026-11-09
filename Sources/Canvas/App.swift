@@ -169,7 +169,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         NotificationCenter.default.addObserver(forName: Settings.experimentalFeaturesDidChange, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.experimentalFeaturesChanged() }
         }
-        // Four-finger drag pans the canvas from anywhere, a window included. Not while Sunlight is off.
+        // Three-finger drag pans the canvas from anywhere, a window included. Not while Sunlight is off.
         let pan = TrackpadPan { [weak canvas] phase in
             guard Settings.sunlightOn else { return }
             canvas?.trackpadPan(phase)

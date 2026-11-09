@@ -201,7 +201,7 @@ final class Desk {
         current.toggle()
     }
 
-    /// A four-finger drag stays with the canvas it began on.
+    /// A three-finger drag stays with the canvas it began on.
     private var panning: CanvasController?
 
     func trackpadPan(_ phase: TrackpadPan.Phase) {

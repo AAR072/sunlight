@@ -38,22 +38,31 @@ final class HandoffTests: XCTestCase {
         XCTAssertFalse(p.clicked)
     }
 
-    func testAClickKeepsTheClickedSpotUnderThePointer() {
-        let p = plan(.clicked(at: CGPoint(x: 1000, y: 700), offset: CGPoint(x: 100, y: 50)))
-        XCTAssertEqual(p.origin, CGPoint(x: 900, y: 650))
-        XCTAssertEqual(p.inPlaceOrigin, p.origin)
-        XCTAssertTrue(p.clicked)
-        XCTAssertNotNil(p.inPlace)
+    func testASingleClickUsesTheDoubleClickDestination() {
+        for zoom: CGFloat in [0.2, 0.5, 1, 2] {
+            let camera = Camera(origin: CGPoint(x: 2500, y: 1500), zoom: zoom)
+            let click = plan(.clicked, camera: camera)
+            let doubleClick = plan(.centered, camera: camera)
+            XCTAssertEqual(click.origin, CGPoint(x: 600, y: 319))
+            XCTAssertEqual(click.origin, doubleClick.origin)
+            XCTAssertEqual(click.camera, doubleClick.camera)
+            XCTAssertNil(click.inPlace)
+            XCTAssertTrue(click.clicked, "keep the second click off the real window during the flight")
+        }
     }
 
-    func testAClickNearTheTopLandsTheWindowUnderTheMenuBarAndRemembersWhereItWasAsked() {
-        // The clicked spot is 50 pt into the window, 20 pt from the top of the screen: the window's top
-        // would be above the menu bar, so it lands right under it, and the plan keeps where it was asked.
-        let p = plan(.clicked(at: CGPoint(x: 1000, y: 20), offset: CGPoint(x: 100, y: 50)))
-        XCTAssertEqual(p.origin, CGPoint(x: 900, y: 38))
-        XCTAssertEqual(p.inPlaceOrigin, CGPoint(x: 900, y: -30))
-        XCTAssertEqual(p.inPlace, Camera(origin: CGPoint(x: 2100, y: 2030), zoom: 1))
-        XCTAssertEqual(p.camera, Camera(origin: CGPoint(x: 2100, y: 1962), zoom: 1))
+    func testSingleAndDoubleClickAgreeForTiledAndOversizedWindows() {
+        for rect in [window, CGRect(x: 3000, y: 2000, width: 2400, height: 1400)] {
+            for area: CGRect? in [nil, CGRect(x: 2800, y: 1900, width: 1600, height: 1100)] {
+                let click = plan(.clicked, rect: rect, tiledArea: area)
+                let doubleClick = plan(.centered, rect: rect, tiledArea: area)
+                XCTAssertEqual(click.origin, doubleClick.origin)
+                XCTAssertEqual(click.camera, doubleClick.camera)
+                XCTAssertEqual(click.inPlace, doubleClick.inPlace)
+                XCTAssertEqual(click.inPlaceOrigin, doubleClick.inPlaceOrigin)
+                XCTAssertTrue(click.clicked)
+            }
+        }
     }
 
     func testATiledWindowLinesUpWithItsArea() {
@@ -66,7 +75,7 @@ final class HandoffTests: XCTestCase {
     // MARK: The camera
 
     func testTheCameraShowsTheWindowAtItsOrigin() {
-        for placement: Handoff.Placement in [.centered, .inPlace(around: CGPoint(x: 300, y: 400)), .clicked(at: CGPoint(x: 1000, y: 700), offset: CGPoint(x: 100, y: 50))] {
+        for placement: Handoff.Placement in [.centered, .inPlace(around: CGPoint(x: 300, y: 400)), .clicked] {
             let p = plan(placement)
             XCTAssertEqual(p.camera.zoom, 1)
             let shown = p.camera.toScreen(window.origin)
@@ -82,8 +91,8 @@ final class HandoffTests: XCTestCase {
     }
 
     func testNoWindowGoesAboveTheMenuBar() {
-        // Clicked near the top: the window's top would be above the menu bar.
-        let p = plan(.clicked(at: CGPoint(x: 1000, y: 10), offset: CGPoint(x: 100, y: 50)))
+        // Entered in place above the top: the title bar must still stay below the menu bar.
+        let p = plan(.inPlace(around: CGPoint(x: 300, y: 10)), camera: Camera(origin: CGPoint(x: 2500, y: 2040), zoom: 1))
         XCTAssertEqual(p.origin.y, 38)
         // In place, the camera it would have ended at, before the menu bar had its say.
         XCTAssertEqual(p.inPlace?.toScreen(window.origin).y, -40)
@@ -105,7 +114,7 @@ final class HandoffTests: XCTestCase {
 
     func testTheSeamAndTheNativePlaceAgree() {
         // What the seam commits (`plan.origin`) is where `nativeOrigin` says the window sits at the plan's camera.
-        for placement: Handoff.Placement in [.centered, .inPlace(around: CGPoint(x: 300, y: 400)), .clicked(at: CGPoint(x: 1000, y: 10), offset: CGPoint(x: 100, y: 50))] {
+        for placement: Handoff.Placement in [.centered, .inPlace(around: CGPoint(x: 300, y: 400)), .clicked] {
             let p = plan(placement)
             XCTAssertEqual(Handoff.nativeOrigin(of: window.origin, at: p.camera, scale: scale, top: visible.minY), p.origin)
         }

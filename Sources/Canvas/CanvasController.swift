@@ -250,10 +250,10 @@ final class CanvasController {
     /// `returnedToCanvas` so the camera only ever moves with the canvas in front.
     private var pendingSwitcherMoves: [SwitcherMove] = []
     private var pendingSwitcherCommit = false
-    /// Four-finger travel that arrived while the canvas was still coming to the front; applied in
+    /// Three-finger travel that arrived while the canvas was still coming to the front; applied in
     /// `returnedToCanvas` for the same reason.
     private var pendingPan: CGVector?
-    /// The four-finger drag under way began from a window, so the canvas is in front because of it.
+    /// The three-finger drag under way began from a window, so the canvas is in front because of it.
     private var panBroughtCanvas = false
 
     /// "Add Widgets…", from picking "Edit Widgets…" until the desktop's edit mode ends.
@@ -365,9 +365,9 @@ final class CanvasController {
         view.onSpring = { [weak self] proxy, point in self?.springInto(proxy, around: point) }
         view.onFileDragEnded = { [weak self] in self?.fileDragEnded() }
         view.onEnter = { [weak self] proxy, point in self?.handoff(to: proxy, placement: .inPlace(around: point)) }
-        view.onClickEnter = { [weak self] proxy, point, offset in
+        view.onClickEnter = { [weak self] proxy in
             self?.preClickCamera = self?.view.camera
-            self?.handoff(to: proxy, placement: .clicked(at: point, offset: offset))
+            self?.handoff(to: proxy, placement: .clicked)
         }
         view.onClickFocus = { [weak self] proxy in self?.focusFromFlight(proxy) }
         view.onUse = { [weak self] proxy, point, press in self?.use(proxy, around: point, press: press) }
@@ -1554,16 +1554,16 @@ final class CanvasController {
         }
     }
 
-    /// A four-finger drag pans the canvas from wherever the user is. From a window (or any other app)
+    /// A three-finger drag pans the canvas from wherever the user is. From a window (or any other app)
     /// the canvas comes to the front first, as with the Mission Control key, and the travel waits for it to arrive. A
-    /// four-finger tap (or, by Settings › How to use, a quick flick up) is the Mission Control key: from a
+    /// three-finger tap (or, by Settings › How to use, a quick flick up) is the Mission Control key: from a
     /// window, the canvas with everything fitted; done again on the canvas, back into the window it
     /// came from.
     func trackpadPan(_ phase: TrackpadPan.Phase) {
         let inFront = NSApp.isActive && activeProxy == nil
         switch phase {
         case .seeAll:
-            Log.note("Pan: four-finger See All")
+            Log.note("Pan: three-finger See All")
             // A flick was a drag until this moment: the pan stops where it is, without coasting.
             if inFront, pendingPan == nil { view.trackpadPanCancelled() }
             pendingPan = nil
@@ -1574,10 +1574,10 @@ final class CanvasController {
             // All, not back again. On the canvas, either gesture again goes back into the last window.
             if fromWindow || !NSApp.isActive { showCanvas(fitAll: true) } else { toggle() }
         case .spread:
-            Log.note("Pan: four-finger spread")
+            Log.note("Pan: three-finger spread")
             showDesktop()
         case .began:
-            Log.note("Pan: four-finger drag\(inFront ? "" : ", bringing the canvas back")")
+            Log.note("Pan: three-finger drag\(inFront ? "" : ", bringing the canvas back")")
             pendingPan = nil
             panBroughtCanvas = !inFront
             if !inFront {
@@ -1607,7 +1607,7 @@ final class CanvasController {
 
     var isShowingDesktop: Bool { desktopShown != nil }
 
-    /// F11, the four-finger spread, Window › Show Desktop: the camera flies to Finder's desktop at 1:1
+    /// F11, the three-finger spread, Window › Show Desktop: the camera flies to Finder's desktop at 1:1
     /// and everything over it dims, the files lit above the dim, as Show Desktop slides the windows away.
     /// Asked again, the dim lifts and the camera flies back to where it was. From a window, the canvas
     /// comes back first.
@@ -4661,7 +4661,7 @@ final class CanvasController {
     typealias Placement = Handoff.Placement
 
     /// A click's way in lasts at least this long, so a second click (a double-click) still lands on the
-    /// canvas, which re-aims it to the middle, and never on the real window as a click of its own.
+    /// canvas, which keeps entering the same window, and never on the real window as a click of its own.
     private static var clickEntryDuration: CFTimeInterval {
         min(max(NSEvent.doubleClickInterval, CanvasView.cameraDuration), 0.6)
     }
@@ -4672,12 +4672,8 @@ final class CanvasController {
     /// it never leaves the screen on the way (live windows; see `slide(into:)`).
     func handoff(to p: WindowProxy, placement: Placement = .centered, spatial: Bool = false, gliding from: CGPoint? = nil) {
         guard !handingOff, p.kind == .window else { return letGo(p) }
-        // A sheet or prompt is entered through its parent, which it rides on; the clicked spot stays put.
+        // A sheet or prompt is entered through its parent, which it rides on.
         if let parent = parentOf(p) {
-            var placement = placement
-            if case .clicked(let at, let offset) = placement {
-                placement = .clicked(at: at, offset: CGPoint(x: offset.x + p.attachmentOffset.x, y: offset.y + p.attachmentOffset.y))
-            }
             return handoff(to: parent, placement: placement, spatial: spatial)
         }
         // A window in Picture in Picture returns to 1:1 where its tile is; the camera stays (`returnFromPip`).
@@ -7634,14 +7630,12 @@ final class CanvasController {
         case .clicked:
             guard let p = passingThrough else { return }
             focusedScaledID = p.windowID
-        case .singleClick(let global):
-            // The clicks swapped: in at 1:1 around the clicked spot, as a click on the canvas enters.
+        case .singleClick:
+            // The clicks swapped: centre and enter, as a click on the canvas does.
             guard let p = passingThrough else { return }
-            let point = viewPoint(global)
-            let world = view.camera.toWorld(point)
             preClickCamera = view.camera
             view.noteClickEntering(p)
-            handoff(to: p, placement: .clicked(at: point, offset: CGPoint(x: world.x - p.worldRect.minX, y: world.y - p.worldRect.minY)))
+            handoff(to: p, placement: .clicked)
         case .dragBegin(let global):
             guard let p = passingThrough else { return }
             view.beginExternalDrag(p, at: viewPoint(global))

@@ -13,14 +13,14 @@ enum ShortcutReference {
     /// The canvas, in the order you'd learn it.
     static let canvasRows: [Row] = [
         Row(title: "Zoom", keys: "pinch · ⌥ or ⌘ scroll"),
-        Row(title: "Pan", keys: "two-finger scroll · four-finger drag"),
+        Row(title: "Pan", keys: "two-finger scroll · three-finger drag"),
         Row(title: "Move a window", keys: "drag"),
         Row(title: "Flip a window's pole", keys: "P · its ⊕/⊖ button"),
-        Row(title: "Enter where it is", keys: "click · pinch in"),
-        Row(title: "Centre and enter", keys: "double-click · ⏎"),
+        Row(title: "Enter where it is", keys: "pinch in"),
+        Row(title: "Centre and enter", keys: "click · double-click · ⏎"),
         Row(title: "Use a window at 1:1", keys: "click"),
-        Row(title: "See everything", keys: "four-finger tap"),
-        Row(title: "Canvas ↔ last window", keys: "Mission Control key · four-finger tap"),
+        Row(title: "See everything", keys: "three-finger tap"),
+        Row(title: "Canvas ↔ last window", keys: "Mission Control key · three-finger tap"),
         Row(title: "Jump to another window", keys: "hold Mission Control key, point, let go"),
         Row(title: "Switch apps", keys: "⌘Tab · then ⌘← ⌘→"),
         Row(title: "Switch the app's windows", keys: "⌘Tab, then ⌘` · ⌘↑ ⌘↓"),
@@ -52,7 +52,7 @@ enum ShortcutReference {
             rows.append(Row(title: "Tell Sunlight", keys: "⌃⌥Space"))
         }
         rows += [
-            Row(title: "Show Desktop", keys: "F11 · four-finger spread"),
+            Row(title: "Show Desktop", keys: "F11 · three-finger spread"),
             Row(title: "Settings…", keys: "⌘,"),
             Row(title: "How to Use", keys: "⌘?"),
         ]

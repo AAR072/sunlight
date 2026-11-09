@@ -12,7 +12,7 @@ final class CanvasView: NSView {
     static let maxZoom: CGFloat = 1.0
     /// Ending a pinch at or above this zoom with a window under the pointer hands off to it.
     static let handoffZoom: CGFloat = 0.9
-    /// A four-finger drag across the trackpad's full width pans this many screen widths.
+    /// A three-finger drag across the trackpad's full width pans this many screen widths.
     static let trackpadPanGain: CGFloat = 1.5
     /// How far the pointer has to travel before pressing on a window or widget becomes moving it, not a click.
     static let dragSlop: CGFloat = 3
@@ -33,11 +33,10 @@ final class CanvasView: NSView {
 
     /// A double-click or ⏎: bring the window to the middle of the screen and enter it.
     var onHandoff: ((WindowProxy) -> Void)?
-    /// Zoomed in or out, a click on a window that didn't become a drag: enter it at 1:1 around the clicked
-    /// spot (`at`: where it was pressed, view coordinates; `offset`: where in the window, world units).
-    var onClickEnter: ((_ proxy: WindowProxy, _ at: CGPoint, _ offset: CGPoint) -> Void)?
-    /// The window a click just started entering in place: a second click on its way in (a double-click)
-    /// brings it to the middle instead. The way in lasts at least the double-click interval
+    /// Zoomed in or out, a click on a window that didn't become a drag: centre and enter it at 1:1.
+    var onClickEnter: ((WindowProxy) -> Void)?
+    /// The window a click just started entering: a second click on its way in (a double-click)
+    /// continues entering the same window. The way in lasts at least the double-click interval
     /// (`CanvasController.handoff`), so the canvas is still here to take that click.
     private weak var clickEntering: WindowProxy?
     /// A press on a window at 1:1: enter it where it is and pass the press on to the real window, so it's
@@ -370,12 +369,12 @@ final class CanvasView: NSView {
     private var link: CADisplayLink?
 
     /// Input since the last frame, applied once per display-link tick (see `Motion`), and the coasts
-    /// carrying a four-finger pan or a pinch on after the fingers lift. Scroll, pinch and the trackpad
+    /// carrying a three-finger pan or a pinch on after the fingers lift. Scroll, pinch and the trackpad
     /// each arrive on their own clock; the display's is the one that matters.
     private var pending = Motion.PendingInput()
     private var coast: Motion.PanCoast?
     private var zoomCoast: Motion.ZoomCoast?
-    /// The four-finger drag's travel so far and its speed, for the coast when it ends.
+    /// The three-finger drag's travel so far and its speed, for the coast when it ends.
     private var panTravel = CGPoint.zero
     private var panVelocity = Magnetism.Velocity()
     /// The pinch's log-zoom so far and its speed, for the tail when it ends.
@@ -384,11 +383,11 @@ final class CanvasView: NSView {
     /// The user moved the camera and it hasn't come to rest since: `onSettle` is asked once it has. A move
     /// of the app's own (a handoff, a fit, the switcher) clears it.
     private var settleWhenStill = false
-    /// Fingers still on the trackpad: a scroll, a pinch or a four-finger drag that hasn't ended. A pause
+    /// Fingers still on the trackpad: a scroll, a pinch or a three-finger drag that hasn't ended. A pause
     /// with them down isn't a rest.
     private var scrollHeld = false
     private var pinchHeld = false
-    private var fourFingersHeld = false
+    private var threeFingersHeld = false
     /// When the last input event arrived: the link stays up this long after, so a gesture doesn't
     /// stop and restart it between events.
     private var lastInput: CFTimeInterval = 0
@@ -1101,20 +1100,20 @@ final class CanvasView: NSView {
         applyCamera()
     }
 
-    /// Four-finger drag (`TrackpadPan`): `travel` is in trackpad widths, and the content follows it on
+    /// Three-finger drag (`TrackpadPan`): `travel` is in trackpad widths, and the content follows it on
     /// the next frame.
     func trackpadPan(by travel: CGVector) {
         beginInput()
         let k = bounds.width * CanvasView.trackpadPanGain
         let delta = CGVector(dx: travel.dx * k, dy: travel.dy * k)
-        fourFingersHeld = true
+        threeFingersHeld = true
         panTravel.x += delta.dx
         panTravel.y += delta.dy
         panVelocity.add(panTravel, at: CACurrentMediaTime())
         pending.addPan(delta)
     }
 
-    /// The four fingers lifted: the pan coasts on from the speed it had, slowing as a scroll does
+    /// The three fingers lifted: the pan coasts on from the speed it had, slowing as a scroll does
     /// (see `Motion.PanCoast`). Any input, click or key stops it. Nothing with pan inertia off in
     /// Settings, or under Reduce Motion.
     func trackpadPanEnded() {
@@ -1128,17 +1127,17 @@ final class CanvasView: NSView {
         if coast != nil { startDisplayLink() }
     }
 
-    /// The four-finger drag turned out to be a flick: the pan stops where it is, no coast.
+    /// The three-finger drag turned out to be a flick: the pan stops where it is, no coast.
     func trackpadPanCancelled() {
         panTravel = .zero
         panVelocity = Magnetism.Velocity()
-        fourFingersHeld = false
+        threeFingersHeld = false
     }
 
     /// A gesture's fingers came off: the camera may be at rest already, with the link long stopped, so
     /// one comes round to see (`settleIfStill`).
     private func fingersLifted() {
-        fourFingersHeld = false
+        threeFingersHeld = false
         guard settleWhenStill else { return }
         startDisplayLink()
     }
@@ -1154,7 +1153,7 @@ final class CanvasView: NSView {
     private func settleIfStill(at now: CFTimeInterval) {
         guard settleWhenStill, animation == nil, flight == nil, magnet == nil, pending.isEmpty, coast == nil,
               zoomCoast == nil, now - lastInput > CanvasView.inputLinger, !scrollHeld, !pinchHeld,
-              !fourFingersHeld, !panning, dragging == nil, resizing == nil else { return }
+              !threeFingersHeld, !panning, dragging == nil, resizing == nil else { return }
         settleWhenStill = false
         _ = onSettle?()
     }
@@ -2540,7 +2539,7 @@ final class CanvasView: NSView {
         settleMagnet(now: true)   // the last drag's pushed windows go straight to their places
         floorPress = nil
         // The second click of a double-click, the first one's way in just stopped above: the same window,
-        // to the middle now, from wherever the camera got to.
+        // to the middle, from wherever the camera got to.
         let entering = clickEntering
         clickEntering = nil
         if event.clickCount >= 2, let p = entering {
@@ -2784,10 +2783,9 @@ final class CanvasView: NSView {
                 // as a click in its content does; a double-click brings it to the middle (`mouseDown`).
                 onFocus?(d.proxy)
             case .window:
-                // Brought to the front on the press. Zoomed in or out, the click enters it at 1:1 right
-                // where it is, around the clicked spot; a double-click brings it to the middle instead.
+                // Brought to the front on the press. A click centres and enters it, just like a double-click.
                 clickEntering = d.proxy
-                onClickEnter?(d.proxy, d.start, d.grabOffset)
+                onClickEnter?(d.proxy)
             }
         }
         dragging = nil
@@ -3099,7 +3097,7 @@ final class CanvasView: NSView {
         }
         switch Int(event.keyCode) {
         case kVK_Escape:
-            break   // nothing, and no beep: seeing everything is the four-finger tap, or the minimap's Fit
+            break   // nothing, and no beep: seeing everything is the three-finger tap, or the minimap's Fit
         case kVK_Return, kVK_ANSI_KeypadEnter:
             // Over a widget: open it. Anywhere else: enter the window under the pointer, or the top one.
             guard let p = hovered ?? proxy(at: camera.toWorld(pointerTopLeft)) ?? proxies.last(where: { $0.kind == .window })

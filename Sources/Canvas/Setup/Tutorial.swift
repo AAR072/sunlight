@@ -53,8 +53,8 @@ enum Tutorial {
         /// The step with See All shown the way Settings › How to use has it (the tap by default).
         func resolved(seeAll: Settings.SeeAllGesture) -> Step {
             var step = self
-            if gesture == .fourFingerTap || gesture == .swipeUp {
-                step.gesture = seeAll == .tap ? .fourFingerTap : .swipeUp
+            if gesture == .threeFingerTap || gesture == .swipeUp {
+                step.gesture = seeAll == .tap ? .threeFingerTap : .swipeUp
             }
             return step
         }
@@ -63,7 +63,7 @@ enum Tutorial {
     static let trackpad: [Step] = [
         Step(title: "See all your windows.",
              line: "Every window sits on one big canvas. From anywhere, even inside a window, one move brings all of it into view.",
-             gesture: .fourFingerTap, keys: "the Mission Control key"),
+             gesture: .threeFingerTap, keys: "the Mission Control key"),
         Step(title: "Pan around.",
              line: "The canvas goes on in every direction. Slide two fingers over it to move about.",
              gesture: .scroll, keys: "drag the empty canvas"),
@@ -71,24 +71,24 @@ enum Tutorial {
              line: "From the whole canvas down to a single window, about the spot between your fingers.",
              gesture: .pinch, keys: "⌥ or ⌘ with a scroll"),
         Step(title: "Go into a window.",
-             line: "One click and it comes to its real size right where it is, ready to use. Pinching in over it, all the way, does the same.",
+             line: "One click brings it to the middle at its real size, ready to use. Pinch in over it to enter where it sits.",
              gesture: .click, also: .pinchIn),
         Step(title: "Bring it to the middle.",
-             line: "Double-click and the window comes to the middle of the screen at its real size, ready to use.",
+             line: "Double-click also brings the window to the middle of the screen at its real size, just like a single click.",
              gesture: .doubleClick, keys: "⏎ for the window under the pointer"),
         Step(title: "Arrange them your way.",
              line: "Drag a window anywhere on the canvas. Its edges stick to the neighbours', so things line up.",
              gesture: .drag, keys: "⌃⌥ and an arrow for halves, thirds and more"),
         Step(title: "Pan from anywhere.",
-             line: "Drag four fingers in any direction, even inside a window: the canvas comes back and follows them.",
-             gesture: .fourFingerDrag),
+             line: "Drag three fingers in any direction, even inside a window: the canvas comes back and follows them.",
+             gesture: .threeFingerDrag),
     ]
 
-    /// With a mouse there are no four fingers, so the steps are the trackpad's without that one.
+    /// With a mouse there are no three fingers, so the steps are the trackpad's without that one.
     static let mouse: [Step] = [
         Step(title: "See all your windows.",
              line: "Every window sits on one big canvas. From anywhere, even inside a window, one key brings all of it into view.",
-             gesture: .fourFingerTap, mouse: MouseCue(how: "Press the Mission Control key", keys: ["F3"], showsMouse: false)),
+             gesture: .threeFingerTap, mouse: MouseCue(how: "Press the Mission Control key", keys: ["F3"], showsMouse: false)),
         Step(title: "Pan around.",
              line: "The canvas goes on in every direction. Scroll to move up and down; hold ⇧ to go sideways.",
              gesture: .scroll, mouse: MouseCue(how: "Scroll, with ⇧ for sideways", keys: ["⇧"], wheel: .pan),
@@ -98,10 +98,10 @@ enum Tutorial {
              gesture: .pinch, mouse: MouseCue(how: "Hold ⌥ and scroll", keys: ["⌥"], wheel: .zoom),
              keys: "⌘ with a scroll"),
         Step(title: "Go into a window.",
-             line: "One click and it comes to its real size right where it is, ready to use.",
+             line: "One click brings it to the middle at its real size, ready to use.",
              gesture: .click, mouse: MouseCue(how: "Click once")),
         Step(title: "Bring it to the middle.",
-             line: "Double-click and the window comes to the middle of the screen at its real size, ready to use.",
+             line: "Double-click also brings the window to the middle of the screen at its real size, just like a single click.",
              gesture: .doubleClick, mouse: MouseCue(how: "Double-click"), keys: "⏎ for the window under the pointer"),
         Step(title: "Arrange them your way.",
              line: "Drag a window anywhere on the canvas. Its edges stick to the neighbours', so things line up.",
